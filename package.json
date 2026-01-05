@@ -1,0 +1,30 @@
+{
+  "name": "mim_gestion_equipement_epi_backend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "node --watch server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MsNCreatureS/MIM_Gestion_Equipement_EPI_backend.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/MsNCreatureS/MIM_Gestion_Equipement_EPI_backend/issues"
+  },
+  "homepage": "https://github.com/MsNCreatureS/MIM_Gestion_Equipement_EPI_backend#readme",
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "body-parser": "^2.2.1",
+    "cors": "^2.8.5",
+    "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.3",
+    "mysql2": "^3.16.0"
+  }
+}
