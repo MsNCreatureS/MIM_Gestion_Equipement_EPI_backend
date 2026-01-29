@@ -11,8 +11,8 @@ exports.submitFeedback = async (req, res) => {
     try {
         const query = `
             INSERT INTO remontees 
-            (societe_agence, date, nom, prenom, lieu_client, type_probleme, description, action, status) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'En attente')
+            (societe_agence, date, nom, prenom, lieu_client, type_probleme, description, action, status, action_admin) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'En attente', '')
         `;
 
         await appDB.execute(query, [
@@ -47,6 +47,16 @@ exports.getAllFeedback = async (req, res) => {
     }
 };
 
+exports.getPublicFeedback = async (req, res) => {
+    try {
+        const [rows] = await appDB.execute('SELECT * FROM remontees ORDER BY date DESC, created_at DESC');
+        res.json(rows);
+    } catch (error) {
+        console.error('Get public feedback error:', error);
+        res.status(500).json({ message: 'Erreur lors de la récupération des données.' });
+    }
+};
+
 exports.updateStatus = async (req, res) => {
     const { id } = req.params;
     const { status } = req.body;
@@ -64,6 +74,19 @@ exports.updateStatus = async (req, res) => {
     }
 };
 
+exports.updateAdminAction = async (req, res) => {
+    const { id } = req.params;
+    const { action_admin } = req.body;
+
+    try {
+        await appDB.execute('UPDATE remontees SET action_admin = ? WHERE id = ?', [action_admin || '', id]);
+        res.json({ message: 'Action admin mise à jour avec succès.' });
+    } catch (error) {
+        console.error('Update admin action error:', error);
+        res.status(500).json({ message: 'Erreur lors de la mise à jour de l\'action.' });
+    }
+};
+
 exports.deleteFeedback = async (req, res) => {
     const { id } = req.params;
 
@@ -78,5 +101,20 @@ exports.deleteFeedback = async (req, res) => {
     } catch (error) {
         console.error('Delete feedback error:', error);
         res.status(500).json({ message: 'Erreur lors de la suppression.' });
+    }
+};
+
+
+exports.getFeedbackById = async (req, res) => {
+    const { id } = req.params;
+    try {
+        const [rows] = await appDB.execute('SELECT * FROM remontees WHERE id = ?', [id]);
+        if (rows.length === 0) {
+            return res.status(404).json({ message: 'Remontée non trouvée.' });
+        }
+        res.json(rows[0]);
+    } catch (error) {
+        console.error('Get feedback by id error:', error);
+        res.status(500).json({ message: 'Erreur lors de la récupération des données.' });
     }
 };
