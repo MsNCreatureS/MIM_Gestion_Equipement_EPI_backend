@@ -24,7 +24,7 @@ exports.login = async (req, res) => {
 
         // Find user by email in logicielmim.utilisateurs
         const [rows] = await authDB.execute(
-            'SELECT * FROM utilisateurs WHERE Email = ?',
+            'SELECT * FROM Utilisateurs WHERE Email = ?',
             [email]
         );
 
