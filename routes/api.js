@@ -29,5 +29,25 @@ router.patch('/feedback/:id/admin-action', verifyToken, verifyAdmin, feedbackCon
 // Protected: Delete feedback (Admin only)
 router.delete('/feedback/:id', verifyToken, verifyAdmin, feedbackController.deleteFeedback);
 
+const typeController = require('../controllers/typeController');
+
+// ... existing code ...
+
+// Problem Types Routes
+// Public: Get active types for the form
+router.get('/types', typeController.getAllTypes);
+
+// Protected: Get all types for admin (including inactive)
+router.get('/admin/types', verifyToken, verifyAdmin, typeController.getAdminTypes);
+
+// Protected: Create type
+router.post('/admin/types', verifyToken, verifyAdmin, typeController.createType);
+
+// Protected: Update type
+router.patch('/admin/types/:id', verifyToken, verifyAdmin, typeController.updateType);
+
+// Protected: Delete type
+router.delete('/admin/types/:id', verifyToken, verifyAdmin, typeController.deleteType);
+
 module.exports = router;
 
