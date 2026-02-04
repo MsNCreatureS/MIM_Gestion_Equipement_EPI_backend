@@ -1,5 +1,6 @@
 const nodemailer = require('nodemailer');
 const path = require('path');
+const { appDB } = require('../config/db');
 
 const transporter = nodemailer.createTransport({
     service: 'gmail',
@@ -14,6 +15,22 @@ const sendNewRequestEmail = async (data) => {
 
     const logoPath = path.join(__dirname, '../assets/logo_MIM.png');
 
+    // Fetch recipients from DB
+    let recipients = [];
+    try {
+        const [rows] = await appDB.execute('SELECT email FROM email_recipients');
+        recipients = rows.map(row => row.email);
+    } catch (error) {
+        console.error('Error fetching email recipients:', error);
+        // Fallback to default if DB fails
+        recipients = ['erwan.gimenez@foselev.fr'];
+    }
+
+    if (recipients.length === 0) {
+        console.log('No email recipients configured.');
+        return false;
+    }
+
     const htmlContent = `
     <!DOCTYPE html>
     <html>
@@ -21,13 +38,15 @@ const sendNewRequestEmail = async (data) => {
         <style>
             body { font-family: 'Arial', sans-serif; color: #333; line-height: 1.6; }
             .container { max-width: 600px; margin: 0 auto; border: 1px solid #e0e0e0; border-radius: 8px; overflow: hidden; }
-            .header { background-color: #f97316; padding: 20px; text-align: center; }
-            .header img { max-width: 150px; background-color: white; padding: 10px; border-radius: 4px; }
+            .header { background-color: #ffffff; padding: 20px; text-align: center; border-bottom: 3px solid #f97316; }
+            .header img { max-width: 120px; }
             .content { padding: 30px; background-color: #ffffff; }
-            .h2 { color: #c2410c; margin-top: 0; }
-            .field { margin-bottom: 10px; }
-            .label { font-weight: bold; color: #555; }
-            .footer { background-color: #f8f8f8; padding: 15px; text-align: center; font-size: 12px; color: #888; border-top: 1px solid #e0e0e0; }
+            .h2 { color: #c2410c; margin-top: 0; font-size: 20px; border-left: 4px solid #f97316; padding-left: 10px; }
+            .field { margin-bottom: 8px; font-size: 14px; }
+            .label { font-weight: bold; color: #777; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
+            .value { font-weight: 500; color: #333; }
+            .description-box { background-color: #f8f8f8; padding: 15px; border-radius: 6px; border: 1px solid #eee; margin-top: 5px; color: #444; }
+            .footer { background-color: #f8f8f8; padding: 15px; text-align: center; font-size: 11px; color: #999; border-top: 1px solid #eee; }
         </style>
     </head>
     <body>
@@ -36,24 +55,38 @@ const sendNewRequestEmail = async (data) => {
                 <img src="cid:logo_mim" alt="MIM Logo">
             </div>
             <div class="content">
-                <h2 class="h2">Nouvelle Remontée d'Information</h2>
-                <p>Une nouvelle demande a été soumise via l'application.</p>
-                
-                <div class="field"><span class="label">Société/Agence:</span> ${societe}</div>
-                <div class="field"><span class="label">Date:</span> ${date}</div>
-                <div class="field"><span class="label">Demandeur:</span> ${prenom} ${nom}</div>
-                <div class="field"><span class="label">Lieu/Client:</span> ${lieu || 'Non spécifié'}</div>
-                <div class="field"><span class="label">Type de problème:</span> ${type}</div>
+                <h2 class="h2">Nouveau Ticket Support</h2>
                 
                 <div class="field">
-                    <div class="label">Description:</div>
-                    <p style="background-color: #f9f9f9; padding: 10px; border-left: 4px solid #f97316; border-radius: 4px; margin-top: 5px;">
+                    <div class="label">Société/Agence</div>
+                    <div class="value">${societe}</div>
+                </div>
+                <div class="field">
+                    <div class="label">Date</div>
+                    <div class="value">${date}</div>
+                </div>
+                <div class="field">
+                    <div class="label">Créé par</div>
+                    <div class="value">${prenom} ${nom}</div>
+                </div>
+                <div class="field">
+                    <div class="label">Lieu/Client</div>
+                    <div class="value">${lieu || 'Non spécifié'}</div>
+                </div>
+                 <div class="field">
+                    <div class="label">Type de problème</div>
+                    <div class="value">${type}</div>
+                </div>
+                
+                <div class="field" style="margin-top: 20px;">
+                    <div class="label">Description</div>
+                    <div class="description-box">
                         ${description || 'Aucune description fournie.'}
-                    </p>
+                    </div>
                 </div>
             </div>
             <div class="footer">
-                Ceci est un message automatique envoyé depuis l'application MIM Gestion Équipement & EPI.
+                Notification automatique - MIM Gestion Équipement & EPI
             </div>
         </div>
     </body>
@@ -61,9 +94,9 @@ const sendNewRequestEmail = async (data) => {
     `;
 
     const mailOptions = {
-        from: `"MIM Notification" <${process.env.EMAIL_USER}>`,
-        to: 'erwan.gimenez@foselev.fr',
-        subject: `[MIM] Nouvelle Remontée - ${societe} - ${type}`,
+        from: `"MIM Support" <${process.env.EMAIL_USER}>`,
+        to: recipients.join(', '),
+        subject: `[MIM] Nouveau Ticket - ${societe} - ${type}`,
         html: htmlContent,
         attachments: [
             {

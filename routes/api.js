@@ -49,5 +49,12 @@ router.patch('/admin/types/:id', verifyToken, verifyAdmin, typeController.update
 // Protected: Delete type
 router.delete('/admin/types/:id', verifyToken, verifyAdmin, typeController.deleteType);
 
+// Email Recipients Routes (Admin only)
+const emailController = require('../controllers/emailController');
+
+router.get('/admin/emails', verifyToken, verifyAdmin, emailController.getRecipients);
+router.post('/admin/emails', verifyToken, verifyAdmin, emailController.addRecipient);
+router.delete('/admin/emails/:id', verifyToken, verifyAdmin, emailController.deleteRecipient);
+
 module.exports = router;
 
