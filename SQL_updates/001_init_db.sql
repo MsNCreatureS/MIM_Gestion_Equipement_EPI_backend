@@ -1,8 +1,8 @@
 -- Création de la base de données
-CREATE DATABASE IF NOT EXISTS mim_feedback;
+CREATE DATABASE IF NOT EXISTS MIM_Feedback;
 
 -- Utilisation de la base de données
-USE mim_feedback;
+USE MIM_Feedback;
 
 -- Création de la table des remontées d'informations
 CREATE TABLE IF NOT EXISTS remontees (

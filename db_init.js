@@ -9,11 +9,11 @@ async function initDB() {
 
     try {
         // Create Database
-        await connection.query(`CREATE DATABASE IF NOT EXISTS mim_feedback`);
-        console.log('Database mim_feedback created or already exists.');
+        await connection.query(`CREATE DATABASE IF NOT EXISTS MIM_Feedback`);
+        console.log('Database MIM_Feedback created or already exists.');
 
         // Switch to the database
-        await connection.changeUser({ database: 'mim_feedback' });
+        await connection.changeUser({ database: 'MIM_Feedback' });
 
         // Create Table
         const createTableQuery = `

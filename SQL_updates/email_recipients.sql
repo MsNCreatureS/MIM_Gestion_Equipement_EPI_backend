@@ -1,4 +1,4 @@
-USE mim_feedback;
+USE MIM_Feedback;
 
 CREATE TABLE IF NOT EXISTS email_recipients (
     id INT AUTO_INCREMENT PRIMARY KEY,

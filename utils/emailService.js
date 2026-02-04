@@ -40,7 +40,7 @@ const sendNewRequestEmail = async (data) => {
             body { font-family: 'Arial', sans-serif; color: #333; line-height: 1.6; }
             .container { max-width: 600px; margin: 0 auto; border: 1px solid #e0e0e0; border-radius: 8px; overflow: hidden; }
             .header { background-color: #ffffff; padding: 20px; text-align: center; border-bottom: 3px solid #f97316; }
-            .header img { max-width: 120px; }
+            .header img { max-width: 80px; }
             .content { padding: 30px; background-color: #ffffff; }
             .h2 { color: #c2410c; margin-top: 0; font-size: 20px; border-left: 4px solid #f97316; padding-left: 10px; }
             .field { margin-bottom: 8px; font-size: 14px; }
@@ -58,7 +58,7 @@ const sendNewRequestEmail = async (data) => {
                 <img src="cid:logo_mim" alt="MIM Logo">
             </div>
             <div class="content">
-                <h2 class="h2">Nouveau Ticket Support (#${id})</h2>
+                <h2 class="h2">Nouvelle Remontée d'Information (#${id})</h2>
                 
                 <div class="field">
                     <div class="label">Société/Agence</div>
@@ -103,7 +103,7 @@ const sendNewRequestEmail = async (data) => {
     const mailOptions = {
         from: `"MIM Support" <${process.env.EMAIL_USER}>`,
         to: recipients.join(', '),
-        subject: `[MIM] Nouveau Ticket - ${societe} - ${type}`,
+        subject: `[MIM] Nouvelle Remontée - ${societe} - ${type}`,
         html: htmlContent,
         attachments: [
             {
