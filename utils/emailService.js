@@ -11,9 +11,10 @@ const transporter = nodemailer.createTransport({
 });
 
 const sendNewRequestEmail = async (data) => {
-    const { societe, date, nom, prenom, lieu, type, description } = data;
+    const { id, societe, date, nom, prenom, lieu, type, description } = data;
 
     const logoPath = path.join(__dirname, '../assets/logo_MIM.png');
+    const feedbackUrl = `https://information.mim-foselev.fr/admin/feedback/${id}`;
 
     // Fetch recipients from DB
     let recipients = [];
@@ -46,6 +47,8 @@ const sendNewRequestEmail = async (data) => {
             .label { font-weight: bold; color: #777; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
             .value { font-weight: 500; color: #333; }
             .description-box { background-color: #f8f8f8; padding: 15px; border-radius: 6px; border: 1px solid #eee; margin-top: 5px; color: #444; }
+            .button-container { text-align: center; margin-top: 30px; }
+            .button { background-color: #f97316; color: #ffffff; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block; }
             .footer { background-color: #f8f8f8; padding: 15px; text-align: center; font-size: 11px; color: #999; border-top: 1px solid #eee; }
         </style>
     </head>
@@ -55,7 +58,7 @@ const sendNewRequestEmail = async (data) => {
                 <img src="cid:logo_mim" alt="MIM Logo">
             </div>
             <div class="content">
-                <h2 class="h2">Nouveau Ticket Support</h2>
+                <h2 class="h2">Nouveau Ticket Support (#${id})</h2>
                 
                 <div class="field">
                     <div class="label">Société/Agence</div>
@@ -83,6 +86,10 @@ const sendNewRequestEmail = async (data) => {
                     <div class="description-box">
                         ${description || 'Aucune description fournie.'}
                     </div>
+                </div>
+
+                <div class="button-container">
+                    <a href="${feedbackUrl}" class="button">Voir la demande</a>
                 </div>
             </div>
             <div class="footer">

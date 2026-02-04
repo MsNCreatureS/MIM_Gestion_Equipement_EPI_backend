@@ -16,7 +16,7 @@ exports.submitFeedback = async (req, res) => {
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'En attente', '')
         `;
 
-        await appDB.execute(query, [
+        const [result] = await appDB.execute(query, [
             societe,
             date,
             nom,
@@ -28,7 +28,7 @@ exports.submitFeedback = async (req, res) => {
         ]);
 
         // Send email notification asynchronously
-        sendNewRequestEmail({ societe, date, nom, prenom, lieu, type, description })
+        sendNewRequestEmail({ id: result.insertId, societe, date, nom, prenom, lieu, type, description })
             .then(success => {
                 if (success) console.log('Notification email sent successfully');
                 else console.warn('Failed to send notification email');
