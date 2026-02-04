@@ -1,4 +1,5 @@
 const { appDB } = require('../config/db');
+const { sendNewRequestEmail } = require('../utils/emailService');
 
 exports.submitFeedback = async (req, res) => {
     const { societe, date, nom, prenom, lieu, type, description, action } = req.body;
@@ -25,6 +26,14 @@ exports.submitFeedback = async (req, res) => {
             description || '',
             action || ''
         ]);
+
+        // Send email notification asynchronously
+        sendNewRequestEmail({ societe, date, nom, prenom, lieu, type, description })
+            .then(success => {
+                if (success) console.log('Notification email sent successfully');
+                else console.warn('Failed to send notification email');
+            })
+            .catch(err => console.error('Error in email sending process:', err));
 
         res.status(201).json({ message: 'Remontée d\'information enregistrée avec succès.' });
 
