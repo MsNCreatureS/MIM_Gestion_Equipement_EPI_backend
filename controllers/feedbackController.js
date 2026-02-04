@@ -88,8 +88,9 @@ exports.updateAdminAction = async (req, res) => {
     const { action_admin } = req.body;
 
     try {
-        await appDB.execute('UPDATE remontees SET action_admin = ? WHERE id = ?', [action_admin || '', id]);
-        res.json({ message: 'Action admin mise à jour avec succès.' });
+        // Automatically set status to 'Traité' when an admin action is saved
+        await appDB.execute("UPDATE remontees SET action_admin = ?, status = 'Traité' WHERE id = ?", [action_admin || '', id]);
+        res.json({ message: 'Action admin mise à jour avec succès et statut passé à Traité.' });
     } catch (error) {
         console.error('Update admin action error:', error);
         res.status(500).json({ message: 'Erreur lors de la mise à jour de l\'action.' });
