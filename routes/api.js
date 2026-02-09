@@ -1,15 +1,42 @@
 const express = require('express');
 const router = express.Router();
+const multer = require('multer');
+const path = require('path');
 const authController = require('../controllers/authController');
 const feedbackController = require('../controllers/feedbackController');
 const { verifyToken, verifyAdmin } = require('../middleware/authMiddleware');
+
+// Multer configuration for file uploads
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, 'uploads/');
+    },
+    filename: (req, file, cb) => {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        cb(null, uniqueSuffix + path.extname(file.originalname));
+    }
+});
+
+const upload = multer({
+    storage: storage,
+    limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
+    fileFilter: (req, file, cb) => {
+        const allowedTypes = /jpeg|jpg|png|gif|pdf|doc|docx|xls|xlsx/;
+        const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
+        const mimetype = allowedTypes.test(file.mimetype);
+        if (extname && mimetype) {
+            return cb(null, true);
+        }
+        cb(new Error('Type de fichier non autorisé'));
+    }
+});
 
 // Auth Routes
 router.post('/login', authController.login);
 
 // Feedback Routes
-// Public: Submit feedback
-router.post('/feedback', feedbackController.submitFeedback);
+// Public: Submit feedback with file uploads (max 10 files)
+router.post('/feedback', upload.array('files', 10), feedbackController.submitFeedback);
 
 // Public: Get all feedback (read-only for public viewing)
 router.get('/feedback/public', feedbackController.getPublicFeedback);
