@@ -12,8 +12,8 @@ exports.submitFeedback = async (req, res) => {
     try {
         const query = `
             INSERT INTO remontees 
-            (societe_agence, date, nom, prenom, lieu_client, type_probleme, description, action, status, action_admin) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'En attente', '')
+            (societe_agence, date, nom, prenom, lieu_client, type_probleme, description, causes, consequences, action, status, action_admin) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'En attente', '')
         `;
 
         const [result] = await appDB.execute(query, [
@@ -24,11 +24,13 @@ exports.submitFeedback = async (req, res) => {
             lieu || '',
             type,
             description || '',
+            req.body.causes || '',
+            req.body.consequences || '',
             action || ''
         ]);
 
         // Send email notification asynchronously
-        sendNewRequestEmail({ id: result.insertId, societe, date, nom, prenom, lieu, type, description })
+        sendNewRequestEmail({ id: result.insertId, societe, date, nom, prenom, lieu, type, description, causes: req.body.causes, consequences: req.body.consequences })
             .then(success => {
                 if (success) console.log('Notification email sent successfully');
                 else console.warn('Failed to send notification email');

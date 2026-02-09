@@ -82,11 +82,32 @@ const sendNewRequestEmail = async (data) => {
                 </div>
                 
                 <div class="field" style="margin-top: 20px;">
-                    <div class="label">Description</div>
+                    <div class="label">Description de l'information</div>
                     <div class="description-box">
                         ${description || 'Aucune description fournie.'}
                     </div>
                 </div>
+
+                <div class="field" style="margin-top: 20px;">
+                   <div class="label">Proposition d'action</div>
+                   <div class="description-box">
+                       ${data.action || 'Aucune action proposée.'}
+                   </div>
+               </div>
+
+               <div class="field" style="margin-top: 20px;">
+                   <div class="label">Causes</div>
+                   <div class="description-box">
+                       ${data.causes || 'Non renseigné.'}
+                   </div>
+               </div>
+
+               <div class="field" style="margin-top: 20px;">
+                   <div class="label">Conséquences</div>
+                   <div class="description-box">
+                       ${data.consequences || 'Non renseigné.'}
+                   </div>
+               </div>
 
                 <div class="button-container">
                     <a href="${feedbackUrl}" class="button">Voir la demande</a>
