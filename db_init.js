@@ -33,6 +33,8 @@ async function initDB() {
         await connection.query(createTableQuery);
         console.log('Table remontees created or already exists.');
 
+
+
     } catch (error) {
         console.error('Error initializing database:', error);
     } finally {
