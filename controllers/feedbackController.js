@@ -29,23 +29,57 @@ exports.submitFeedback = async (req, res) => {
             action || ''
         ]);
 
-        // Send email notification asynchronously
-        sendNewRequestEmail({ id: result.insertId, societe, date, nom, prenom, lieu, type, description, causes: req.body.causes, consequences: req.body.consequences })
+        const remonteeId = result.insertId;
+
+        // Handle file uploads
+        if (req.files && req.files.length > 0) {
+            const fileValues = req.files.map(file => [
+                remonteeId,
+                file.path, // Store full path or relative path
+                file.originalname,
+                file.mimetype,
+                file.size
+            ]);
+
+            // Construct bulk insert query
+            const fileQuery = `
+                INSERT INTO remontee_files (remontee_id, file_path, original_name, mime_type, file_size)
+                VALUES ?
+            `;
+
+            // mysql2 requires a specific format for bulk inserts (array of arrays)
+            // But verify if execute supports this or if query is needed. 'query' supports bulk, 'execute' prepared might not.
+            // Safe approach: loop or use query. simpler to loop for prepared statement safety if needed, 
+            // but mysql2 query method handles it.
+            // Let's use loop for safety with 'execute' or constructed string.
+            // Actually, let's just loop for now, 10 files max is small.
+            for (const file of req.files) {
+                await appDB.execute(
+                    'INSERT INTO remontee_files (remontee_id, file_path, original_name, mime_type, file_size) VALUES (?, ?, ?, ?, ?)',
+                    [remonteeId, file.path, file.originalname, file.mimetype, file.size]
+                );
+            }
+        }
+
+        // Send email notification asynchronously (could be updated to include attachments if needed)
+        sendNewRequestEmail({ id: remonteeId, societe, date, nom, prenom, lieu, type, description, causes: req.body.causes, consequences: req.body.consequences })
             .then(success => {
                 if (success) console.log('Notification email sent successfully');
                 else console.warn('Failed to send notification email');
             })
             .catch(err => console.error('Error in email sending process:', err));
 
-        res.status(201).json({ message: 'Remontée d\'information enregistrée avec succès.' });
+        res.status(201).json({ message: 'Remontée d\'information enregistrée avec succès.', id: remonteeId });
 
     } catch (error) {
         console.error('Submit feedback error:', error);
         const fs = require('fs');
         const logMessage = `[${new Date().toISOString()}] Error: ${error.message}\nStack: ${error.stack}\n\n`;
-        fs.appendFileSync('backend_errors.log', logMessage);
+        // Ensure log file exists or just write
+        try { fs.appendFileSync('backend_errors.log', logMessage); } catch (e) { }
         res.status(500).json({ message: 'Erreur lors de l\'enregistrement.' });
     }
+
 };
 
 exports.getAllFeedback = async (req, res) => {
@@ -125,9 +159,16 @@ exports.getFeedbackById = async (req, res) => {
         if (rows.length === 0) {
             return res.status(404).json({ message: 'Remontée non trouvée.' });
         }
-        res.json(rows[0]);
+
+        const [files] = await appDB.execute('SELECT * FROM remontee_files WHERE remontee_id = ?', [id]);
+
+        const feedback = rows[0];
+        feedback.files = files;
+
+        res.json(feedback);
     } catch (error) {
         console.error('Get feedback by id error:', error);
         res.status(500).json({ message: 'Erreur lors de la récupération des données.' });
     }
 };
+
