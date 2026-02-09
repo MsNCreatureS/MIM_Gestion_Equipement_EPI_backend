@@ -31,8 +31,6 @@ router.delete('/feedback/:id', verifyToken, verifyAdmin, feedbackController.dele
 
 const typeController = require('../controllers/typeController');
 
-// ... existing code ...
-
 // Problem Types Routes
 // Public: Get active types for the form
 router.get('/types', typeController.getAllTypes);
@@ -56,18 +54,5 @@ router.get('/admin/emails', verifyToken, verifyAdmin, emailController.getRecipie
 router.post('/admin/emails', verifyToken, verifyAdmin, emailController.addRecipient);
 router.delete('/admin/emails/:id', verifyToken, verifyAdmin, emailController.deleteRecipient);
 
-// Form Configuration Routes
-const formConfigController = require('../controllers/formConfigController');
-
-// Public: Get config to render the form
-router.get('/form-config', formConfigController.getFormConfig);
-
-// Protected: Get config for admin (same as public for now, but explicit route for admin usage)
-router.get('/admin/form-config', verifyToken, verifyAdmin, formConfigController.getFormConfig);
-
-// Protected: Update field config
-router.patch('/admin/form-config/:id', verifyToken, verifyAdmin, formConfigController.updateFormConfig);
-
 
 module.exports = router;
-
